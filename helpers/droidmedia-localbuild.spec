@@ -52,13 +52,21 @@ ls
 tar -xvf %name-%version.tgz
 %install
 
-mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/lib/
+pushd %name-%version
+if [ -f out/target/product/*/system/lib64/libdroidmedia.so ]; then
+DROIDLIB=lib64
+else
+DROIDLIB=lib
+fi
+popd
+
+mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/$DROIDLIB/
 mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/bin/
 mkdir -p $RPM_BUILD_ROOT/%{_includedir}/droidmedia/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/droidmedia/
 pushd %name-%version
-cp out/target/product/*/system/lib/libdroidmedia.so \
-    $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/lib/
+cp out/target/product/*/system/$DROIDLIB/libdroidmedia.so \
+    $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/$DROIDLIB/
 
 cp out/target/product/*/system/bin/minimediaservice \
     $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/bin/
@@ -70,9 +78,11 @@ cp external/droidmedia/*.h $RPM_BUILD_ROOT/%{_includedir}/droidmedia/
 cp external/droidmedia/hybris.c $RPM_BUILD_ROOT/%{_datadir}/droidmedia/
 
 popd
-%files
+
+echo %{_libexecdir}/droid-hybris/system/$DROIDLIB/libdroidmedia.so > file.list
+
+%files -f file.list
 %defattr(-,root,root,-)
-%{_libexecdir}/droid-hybris/system/lib/libdroidmedia.so
 %{_libexecdir}/droid-hybris/system/bin/minimediaservice
 %{_libexecdir}/droid-hybris/system/bin/minisfservice
 

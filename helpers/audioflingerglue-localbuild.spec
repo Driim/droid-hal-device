@@ -43,11 +43,13 @@ ls
 tar -xvf %name-%version.tgz
 %install
 
+pushd %name-%version
 if [ -f out/target/product/*/system/lib64/libaudioflingerglue.so ]; then
 DROIDLIB=lib64
 else
 DROIDLIB=lib
 fi
+popd
 
 mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/$DROIDLIB/
 mkdir -p $RPM_BUILD_ROOT/%{_libexecdir}/droid-hybris/system/bin/
@@ -66,10 +68,9 @@ sed -e "s/@TARGET_LIB_ARCH@/$DROIDLIB/" external/audioflingerglue/hybris.c.in > 
 
 popd
 
-LIBAFSOLOC=$RPM_BUILD_ROOT/file.list
-echo %{_libexecdir}/droid-hybris/system/$DROIDLIB/libaudioflingerglue.so > %{LIBAFSOLOC}
+echo %{_libexecdir}/droid-hybris/system/$DROIDLIB/libaudioflingerglue.so > file.list
  
-%files -f %{LIBAFSOLOC}
+%files -f file.list
 %defattr(-,root,root,-)
 %{_libexecdir}/droid-hybris/system/bin/miniafservice
 
